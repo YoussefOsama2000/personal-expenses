@@ -263,6 +263,27 @@ class _HomePageState extends State<HomePage> {
                                           ),
                                         ),
                                       ),
+                                      Expanded(
+                                        child: Align(
+                                          alignment: Alignment.centerRight,
+                                          child: InkWell(
+                                            onTap: () {
+                                              setState(() {
+                                                for (int i = 0;
+                                                    i < transaction.length;
+                                                    i++)
+                                                  if (transaction[i] == tx) {
+                                                    transaction.remove(tx);
+                                                    return;
+                                                  }
+                                              });
+                                            },
+                                            child: Icon(
+                                              Icons.delete,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 );
