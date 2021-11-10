@@ -23,7 +23,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool noItems = true;
+  double max = 0;
   String newItemTitle = '';
   double newItemPrice = 0;
   int year = int.parse(DateTime.now().year.toString());
@@ -31,12 +31,14 @@ class _HomePageState extends State<HomePage> {
   int day = int.parse(DateTime.now().day.toString());
   List<Transaction> transaction = [];
   List<BarChartGroupData> initBars() {
+    max = 100;
     List<BarChartGroupData> barsData = [];
     for (int i = 0; i < 7; i++) {
       double total = 0;
       for (int j = 0; j < transaction.length; j++) {
         if (transaction[j].date.weekday == i + 1)
           total = total + transaction[j].price;
+        if (total > max) max = total;
       }
       barsData.add(BarChartGroupData(x: i + 1, barRods: [
         BarChartRodData(
@@ -74,7 +76,7 @@ class _HomePageState extends State<HomePage> {
                       width: double.infinity,
                       child: BarChart(
                         BarChartData(
-                            maxY: 1000,
+                            maxY: 3 * max,
                             minY: 0,
                             titlesData: FlTitlesData(
                               rightTitles: SideTitles(
@@ -155,7 +157,6 @@ class _HomePageState extends State<HomePage> {
                       onPressed: () {
                         if (newItemTitle != '' && newItemPrice != 0)
                           setState(() {
-                            noItems = false;
                             transaction.add(Transaction(newItemTitle,
                                 newItemPrice, DateTime(year, month, day)));
                           });
@@ -178,117 +179,114 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
                 Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.blue,
-                        width: 3,
-                      ),
-                      borderRadius: BorderRadius.circular(10)),
-                  height: 200,
-                  child: SingleChildScrollView(
-                    child: Column(
-                        children: noItems
-                            ? [
-                                SizedBox(
-                                  width: double.infinity,
-                                )
-                              ]
-                            : transaction.map((tx) {
-                                return Card(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      Container(
-                                        child: SizedBox(
-                                          width: 110,
-                                          child: Center(
-                                            child: Text(
-                                              '\$ ${tx.price.toStringAsFixed(2)}',
-                                              style: TextStyle(
-                                                color: Colors.blue,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 18,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                width: 1, color: Colors.blue)),
-                                        padding: EdgeInsets.all(5),
-                                      ),
-                                      SizedBox(
-                                        width: 15,
-                                      ),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            tx.title,
+                  child: transaction.length == 0
+                      ? null
+                      : Container(
+                          decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Colors.blue,
+                                width: 3,
+                              ),
+                              borderRadius: BorderRadius.circular(10)),
+                          height: 200,
+                          child: SingleChildScrollView(
+                            child: Column(
+                                children: transaction.map((tx) {
+                              return Card(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Container(
+                                      child: SizedBox(
+                                        width: 110,
+                                        child: Center(
+                                          child: Text(
+                                            '\$ ${tx.price.toStringAsFixed(2)}',
                                             style: TextStyle(
+                                              color: Colors.blue,
                                               fontWeight: FontWeight.bold,
-                                              fontSize: 15,
-                                            ),
-                                          ),
-                                          Text(
-                                            '${tx.date.year.toString()}-${tx.date.month.toString()}-${tx.date.day.toString()}',
-                                            style:
-                                                TextStyle(color: Colors.grey),
-                                          )
-                                        ],
-                                      ),
-                                      Expanded(
-                                        child: Align(
-                                          alignment: Alignment.centerRight,
-                                          child: InkWell(
-                                            onTap: () {
-                                              setState(() {
-                                                transaction.insert(
-                                                    transaction.indexOf(tx, 0) +
-                                                        1,
-                                                    Transaction(
-                                                      tx.title,
-                                                      tx.price,
-                                                      tx.date,
-                                                    ));
-                                              });
-                                            },
-                                            child: Icon(
-                                              Icons.add_to_photos,
+                                              fontSize: 18,
                                             ),
                                           ),
                                         ),
                                       ),
-                                      Expanded(
-                                        child: Align(
-                                          alignment: Alignment.centerRight,
-                                          child: InkWell(
-                                            onTap: () {
-                                              setState(() {
-                                                for (int i = 0;
-                                                    i < transaction.length;
-                                                    i++)
-                                                  if (transaction[i] == tx) {
-                                                    transaction.remove(tx);
-                                                    return;
-                                                  }
-                                              });
-                                            },
-                                            child: Icon(
-                                              Icons.delete,
-                                            ),
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                              width: 1, color: Colors.blue)),
+                                      padding: EdgeInsets.all(5),
+                                    ),
+                                    SizedBox(
+                                      width: 15,
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          tx.title,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                        Text(
+                                          '${tx.date.year.toString()}-${tx.date.month.toString()}-${tx.date.day.toString()}',
+                                          style: TextStyle(color: Colors.grey),
+                                        )
+                                      ],
+                                    ),
+                                    Expanded(
+                                      child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              transaction.insert(
+                                                  transaction.indexOf(tx, 0) +
+                                                      1,
+                                                  Transaction(
+                                                    tx.title,
+                                                    tx.price,
+                                                    tx.date,
+                                                  ));
+                                            });
+                                          },
+                                          child: Icon(
+                                            Icons.add_to_photos,
                                           ),
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                );
-                              }).toList(growable: true)),
-                  ),
+                                    ),
+                                    Expanded(
+                                      child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              for (int i = 0;
+                                                  i < transaction.length;
+                                                  i++)
+                                                if (transaction[i] == tx) {
+                                                  transaction.remove(tx);
+                                                  return;
+                                                }
+                                            });
+                                          },
+                                          child: Icon(
+                                            Icons.delete,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(growable: true)),
+                          ),
+                        ),
                 )
               ],
             ),
